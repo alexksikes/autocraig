@@ -1,0 +1,33 @@
+This program scrapes a specified section of Craigslist and automatically email all the authors of each post with a custom email message.
+
+I wrote this program back in the summer of 2007 in order to look for a place in Newport Beach. The idea was to have people email me instead of the other way around and to make sure I would most likely be the first person on the deal.
+
+Example:
+
+$url: 
+http://orangecounty.craigslist.org/search/hhh?query=superior+newport+beach&minAsk=min&maxAsk=1350
+
+$msg: 
+Hi,
+
+I just looked at your post on Craigslist and I'm very interested in the room. Would it be possible to have a look a it ASAP?
+
+Thank you so much,
+
+Alex Ksikes
+
+and run it as:
+python --report --auto $msg $url
+
+This will email all the authors of each post scraped at the specified URL (--auto option). Here I'm looking for a room on superior in Newport Beach with maximum rent of $1350. The result of the scrapping is also sent to me in one email (--report option) for further scrutiny.
+
+Email parameters are set in autocraig.conf. Duplicates are kept in autocraig.duplicates to make sure each author is emailed only once. The program can scrape deep to a chosen number of days or pages. Best used as a cron job. Use it with caution to avoid SPAM! (consider removing the --auto option)
+
+I set it up on the following URLs as a cron job (and sporadically used the --auto option):
+
+http://orangecounty.craigslist.org/search/hhh?query=superior+newport+beach&minAsk=min&maxAsk=1350
+http://orangecounty.craigslist.org/search/hhh?query=hoag+newport+beach&minAsk=min&maxAsk=1350
+http://orangecounty.craigslist.org/search/hhh?query=ticonderoga&minAsk=min&maxAsk=1350
+http://orangecounty.craigslist.org/search/hhh?query=newport+crest&minAsk=min&maxAsk=1350
+
+The irony of the story: I ended up renting the place accross the street!!
