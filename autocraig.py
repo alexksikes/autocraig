@@ -15,9 +15,9 @@ import re, urllib
 
 def autocraig(search_url, auto=False, report=False, 
               ignore_duplicates=False, quiet=False, 
-              duplicates_file=None):
+              duplicates_file=None, conf_file=None):
     # read config file
-    read_conf('autocraig.conf')
+    read_conf(conf_file)
     # set the duplicate file
     if not duplicates_file:
         duplicates_file = conf['DUPLICATES']
@@ -57,7 +57,7 @@ def read_conf(conf_file):
             continue
         (k, v) = map(lambda s: s.strip(), l.split('='))
         conf[k.upper()] = v
-
+    
 d_sep = '@#@#@'
 def load_duplicates(duplicate_file):
     duplicates = {}
@@ -78,7 +78,8 @@ def get_all_posts(search_url, duplicates, deep=conf['DEEP']):
     return posts
 
 #p_urls = re.compile('<p>&nbsp;.*?&nbsp;&nbsp;&nbsp;<a href="(.*?)">.*?</a>', re.I)
-p_urls = re.compile('<p>.*?\-.*?<a href="(.*?)">.*?</a>', re.I)
+#p_urls = re.compile('<p>.*?\-.*?<a href="(.*?)">.*?</a>', re.I)
+p_urls = re.compile('\s\-.*?<a\shref="(.*?)">.*?</a>')
 def get_post_urls(search_url):
     html = urllib.urlopen(search_url).read()
     return p_urls.findall(html)
@@ -166,13 +167,14 @@ from send_mail import send_mail
 import datetime
 def email_digest(posts):
     if posts:
-        send_mail(to_addrs=conf['TO_EMAIL'], message=rep(posts, html=True), from_addr=conf['FROM_EMAIL'],
+        send_mail(to_addrs=conf['TO_EMAIL'].split(','), cc_addrs=conf['CC_EMAIL'].split(','), 
+                  message=rep(posts, html=True), from_addr=conf['FROM_EMAIL'],
                   content_type='text/html', subject='craigslist-auto-%s' % datetime.datetime.now())
         
 def email_authors(posts, msg):
     for post in posts:
         send_mail(to_addrs=post['reply'], from_addrs=conf['FROM_EMAIL'], 
-                  cc_addrs=conf['CC_EMAIL'], message=msg, subject=post['title'])
+                  cc_addrs=conf['CC_EMAIL'].split(','), message=msg, subject=post['title'])
     
 def rep(posts, html=False):
     s = ''
@@ -200,6 +202,7 @@ def usage():
     print "Lists of duplicates are kept in cwd/autocraig.duplicates."
     print
     print "Options:" 
+    print "--conf config_file: path to autocraig.conf"
     print "--auto msg_file: email all authors wiht msg_file or use - to read from stdin"
     print "--report : send digest html email with pictures and summary"
     print "--ignore-duplicates : ignore the duplicate detection facility"
@@ -213,12 +216,13 @@ import sys, getopt
 def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", 
-                        ["auto", "report", "ignore-duplicates", "quiet", "duplicate-file=", "help"])
+                        ["conf=", "auto", "report", "ignore-duplicates", "quiet", "duplicate-file=", "help"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
     auto = report = ignore_duplicates = quiet = False
     duplicate_file = None
+    conf_file = 'autocraig.conf'
     for o, a in opts:
         if o  == "--auto":
             auto = a
@@ -230,6 +234,8 @@ def main():
             ignore_duplicates = True   
         elif o == "--quiet":
             quiet = True  
+        elif o == "--conf":
+            conf_file = a  
         elif o == "--duplicate-file":
             duplicate_file = a  
         elif o in ("-h", "--help"):
@@ -240,7 +246,7 @@ def main():
     else:
         autocraig(args[-1], auto=auto, report=report, 
                   ignore_duplicates=ignore_duplicates, quiet=quiet, 
-                  duplicates_file=duplicate_file)
+                  duplicates_file=duplicate_file, conf_file=conf_file)
       
 if __name__ == '__main__':
     main()

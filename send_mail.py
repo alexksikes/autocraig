@@ -48,10 +48,10 @@ class Mailer:
             msg = MIMEMultipart()
         
         # should be refactored
-        msg['To'] = to_addrs[0] # to be changed to handle mutiple to
+        msg['To'] = ','.join(to_addrs)
         msg['From'] = from_addr
         if cc_addrs:
-            msg['Cc'] = cc_addrs[0] # to be changed to handle mutiple cc
+            msg['Cc'] = ','.join(cc_addrs)
         msg['Subject'] = subject
         msg['Date'] = Utils.formatdate(localtime=1)
         msg['Message-ID'] = Utils.make_msgid()

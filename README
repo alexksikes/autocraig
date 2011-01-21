@@ -17,7 +17,7 @@ Thank you so much,
 Alex Ksikes
 
 and run it as:
-python --report --auto $msg $url
+python autocraig.py --report --auto $msg $url
 
 This will email all the authors of each post scraped at the specified URL (--auto option). Here I'm looking for a room on superior in Newport Beach with maximum rent of $1350. The result of the scrapping is also sent to me in one email (--report option) for further scrutiny.
 
